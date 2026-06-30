@@ -3,6 +3,8 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Items from './pages/Items';
 import Inventory from './pages/Inventory';
@@ -16,8 +18,10 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public login route */}
+          {/* Public auth routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Protected main app shell and nested routes */}
           <Route 

@@ -33,7 +33,7 @@ export default function Layout() {
       overflow: hidden;
     }
     .sidebar {
-      width: 250px;
+      width: 220px;
       background: #181D2E;
       color: #94A3B8;
       display: flex;
@@ -47,10 +47,10 @@ export default function Layout() {
       width: 70px;
     }
     .sidebar-header {
-      height: 64px;
+      height: 54px;
       display: flex;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 10px;
       gap: 12px;
       border-bottom: 1px solid #232A3E;
       overflow: hidden;
@@ -81,13 +81,13 @@ export default function Layout() {
     .menu-item {
       display: flex;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 6px;
       color: #94A3B8;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      gap: 12px;
+      gap: 10px;
       transition: background-color 0.15s ease, color 0.15s ease;
       white-space: nowrap;
       box-sizing: border-box;
@@ -101,17 +101,39 @@ export default function Layout() {
       color: #FFFFFF;
     }
     .menu-icon {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       flex-shrink: 0;
     }
     .menu-label {
       transition: opacity 0.2s;
     }
     .sidebar.collapsed .menu-label {
-      opacity: 0;
-      width: 0;
+      display: block;
+      opacity: 1;
+      width: auto;
       overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 9px;
+      font-weight: 500;
+      max-width: 100%;
+      text-align: center;
+    }
+    .sidebar.collapsed .sidebar-header {
+      justify-content: center;
+      padding: 0;
+    }
+    .sidebar.collapsed .menu-item {
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 8px 4px;
+      gap: 4px;
+      border-radius: 6px;
+    }
+    .sidebar.collapsed .menu-icon {
+      width: 18px;
+      height: 18px;
     }
     .sidebar-footer {
       padding: 16px 12px;
@@ -178,7 +200,7 @@ export default function Layout() {
     }
 
     .topbar {
-      height: 64px;
+      height: 54px;
       background: #FFFFFF;
       border-bottom: 1px solid #E2E8F0;
       display: flex;
@@ -195,7 +217,7 @@ export default function Layout() {
       flex: 1;
       max-width: 480px;
     }
-    .refresh-btn {
+    .recent-activity-btn {
       background: transparent;
       border: none;
       color: #64748B;
@@ -207,7 +229,7 @@ export default function Layout() {
       justify-content: center;
       transition: background-color 0.15s, color 0.15s;
     }
-    .refresh-btn:hover {
+    .recent-activity-btn:hover {
       background: #F1F5F9;
       color: #0F172A;
     }
@@ -390,6 +412,7 @@ export default function Layout() {
       overflow-y: auto;
       background: #F8FAFC;
       box-sizing: border-box;
+      padding: 24px 32px;
     }
 
     @media (max-width: 900px) {
@@ -420,7 +443,7 @@ export default function Layout() {
           <svg className="sidebar-logo" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
-          <span className="sidebar-title">Inventory</span>
+          {!collapsed && <span className="sidebar-title">Inventory</span>}
         </div>
 
         <nav className="sidebar-menu">
@@ -475,10 +498,10 @@ export default function Layout() {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="onboarding-btn">
+          {/* <div className="onboarding-btn">
             <span className="onboarding-dot"></span>
             {!collapsed && <span className="menu-label">LIVE GUIDED ONBOARDING</span>}
-          </div>
+          </div> */}
 
           <div className="collapse-bar">
             <button className="collapse-btn" onClick={() => setCollapsed(!collapsed)} title={collapsed ? 'Expand menu' : 'Collapse menu'}>
@@ -498,9 +521,9 @@ export default function Layout() {
       <div className="main-wrapper">
         <header className="topbar">
           <div className="topbar-left">
-            <button className="refresh-btn" title="Refresh data" onClick={() => window.location.reload()}>
+            <button className="recent-activity-btn" title="Recent Activity">
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
             <div className="search-wrapper">

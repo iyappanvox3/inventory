@@ -140,3 +140,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+# 6. Console Email Backend for development password reset testing
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

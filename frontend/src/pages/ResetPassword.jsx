@@ -1,25 +1,56 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import client from '../api/client';
 
-export default function Login() {
-  const [username, setUsername] = useState('');
+export default function ResetPassword() {
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login } = useAuth();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  const token = searchParams.get('token');
+  const uid = searchParams.get('uid');
+  const isLinkInvalid = !token || !uid;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
+
+    if (isLinkInvalid) {
+      setError('Invalid reset link.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setLoading(true);
     try {
-      await login(username, password);
-      navigate('/');
+      const response = await client.post('/api/auth/password-reset/confirm/', {
+        uid,
+        token,
+        new_password: password
+      });
+      setMessage(response.data.detail || 'Password reset successful!');
+      
+      // Auto redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Invalid username or password.');
+      setError(err.response?.data?.detail || 'Invalid or expired password reset link.');
     } finally {
       setLoading(false);
     }
@@ -123,14 +154,8 @@ export default function Login() {
       box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.05);
       outline: none;
     }
-    .password-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
     .forgot-link {
-      font-size: 12px;
+      font-size: 13px;
       color: #64748B;
       text-decoration: none;
       transition: color 0.15s ease;
@@ -168,6 +193,16 @@ export default function Login() {
       color: #DC2626;
       font-size: 13px;
       margin-bottom: 20px;
+    }
+    .success-msg {
+      background: #F0FDF4;
+      border: 1px solid #86EFAC;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #16A34A;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
     .login-footer {
       margin-top: 48px;
@@ -226,49 +261,64 @@ export default function Login() {
             <span className="logo-text">AETHERIS</span>
           </div>
 
-          <h2 className="login-title">Welcome back</h2>
-          <p className="login-subtitle">Sign in to manage and audit your real-time inventory nodes.</p>
+          <h2 className="login-title">New password</h2>
+          <p className="login-subtitle">Choose a strong, secure password containing at least 6 characters.</p>
 
-          {error && <div className="error-msg">{error}</div>}
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="input-label">Username</label>
-              <input 
-                type="text" 
-                className="input-field" 
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
+          {(error || isLinkInvalid) && (
+            <div className="error-msg">
+              {error || 'Invalid reset link. Missing security token or identifier.'}
             </div>
+          )}
+          {message && (
+            <div className="success-msg">
+              {message} <br />
+              Redirecting you to the sign-in page in a few seconds...
+            </div>
+          )}
 
-            <div className="form-group">
-              <div className="password-row">
-                <label className="input-label">Password</label>
-                <Link to="/forgot-password" className="forgot-link">Forgot password?</Link>
+          {!message && (
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="input-label">New Password</label>
+                <input 
+                  type="password" 
+                  className="input-field" 
+                  placeholder="At least 6 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={!token || !uid}
+                  required
+                />
               </div>
-              <input 
-                type="password" 
-                className="input-field" 
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
 
-            <button 
-              type="submit" 
-              className="submit-btn"
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
+              <div className="form-group">
+                <label className="input-label">Confirm Password</label>
+                <input 
+                  type="password" 
+                  className="input-field" 
+                  placeholder="Repeat new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={!token || !uid}
+                  required
+                />
+              </div>
 
-          <footer className="login-footer">
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading || !token || !uid}
+              >
+                {loading ? 'Updating password...' : 'Update password'}
+              </button>
+            </form>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '24px' }}>
+            <Link to="/login" className="forgot-link">Back to Sign in</Link>
+          </div>
+
+          <footer className="login-footer" style={{ textAlign: 'center', marginTop: '40px' }}>
             © {new Date().getFullYear()} Aetheris Operations. All rights reserved.
           </footer>
         </div>
@@ -295,23 +345,19 @@ export default function Login() {
               <rect width="100%" height="100%" fill="url(#grid)" />
               
               {/* Abstract Logistics Cubes */}
-              {/* Back Left Cube */}
               <path d="M120,200 L180,170 L240,200 L180,230 Z" fill="url(#gradient-cube-side)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
               <path d="M120,200 L120,260 L180,290 L180,230 Z" fill="rgba(129, 140, 248, 0.08)" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="1" />
               <path d="M180,230 L180,290 L240,260 L240,200 Z" fill="rgba(192, 132, 252, 0.03)" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="1" />
               
-              {/* Front Right Cube */}
               <path d="M200,240 L260,210 L320,240 L260,270 Z" fill="url(#gradient-cube-top)" stroke="rgba(255, 255, 255, 0.18)" strokeWidth="1" />
               <path d="M200,240 L200,300 L260,330 L260,270 Z" fill="rgba(56, 189, 248, 0.12)" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" />
               <path d="M260,270 L260,330 L320,300 L320,240 Z" fill="rgba(129, 140, 248, 0.06)" stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" />
 
-              {/* Data connections / analytics lines */}
               <path d="M60,150 L180,170 L260,210 L340,180" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="4 4" />
               <circle cx="180" cy="170" r="4" fill="#38bdf8" />
               <circle cx="260" cy="210" r="4" fill="#818cf8" />
               <circle cx="340" cy="180" r="3" fill="rgba(56, 189, 248, 0.5)" />
 
-              {/* Muted status strings */}
               <text x="130" y="100" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontFamily="ui-monospace, monospace" letterSpacing="0.8">SYSTEM_NODE_OK: 100%</text>
               <text x="130" y="120" fill="rgba(255, 255, 255, 0.3)" fontSize="10" fontFamily="ui-monospace, monospace" letterSpacing="0.8">FLOW_ROUTING: AUTO</text>
             </svg>
