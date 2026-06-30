@@ -3,6 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -48,7 +49,7 @@ def request_password_reset(request):
     # Send email
     subject = "Reset Your Aetheris Password"
     message = f"Hello {user.username},\n\nPlease click the link below to reset your password:\n\n{reset_link}\n\nIf you did not request this, please ignore this email."
-    from_email = "noreply@aetheris.com"
+    from_email = settings.DEFAULT_FROM_EMAIL
     
     send_mail(subject, message, from_email, [email], fail_silently=False)
     

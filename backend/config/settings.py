@@ -141,5 +141,11 @@ REST_FRAMEWORK = {
     ),
 }
 
-# 6. Console Email Backend for development password reset testing
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# 6. SMTP Email Backend for password reset mailing
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'iyappanvox10@gmail.com'
+EMAIL_HOST_PASSWORD = 'sjky skvb ccnz vkhk'
+DEFAULT_FROM_EMAIL = 'iyappanvox10@gmail.com'
