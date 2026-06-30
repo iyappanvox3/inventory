@@ -1,0 +1,19 @@
+/* Global Reset to ensure layout spans 100% of the viewport with no margins or gaps */
+body {
+  margin: 0;
+  padding: 0;
+  background: #F8FAFC;
+  overflow: hidden;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
